@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class PspController {
+public class MyTableController {
 
     @Autowired
-    protected IPspRepositoryDynamoDB iPspRepositoryDynamoDB = null;
+    protected MyTableRepositoryDynamoDB myTableRepositoryDynamoDB = null;
 
 
     @RequestMapping(value = "/save-psp",method = RequestMethod.POST)
     public String savePsp(@RequestParam(value="pspName") String pspName) {
-        Psp pspToSave = new Psp();
-        pspToSave.setPspName(pspName);
-        iPspRepositoryDynamoDB.save(pspToSave);
+        MyTable myTableToSave = new MyTable();
+        myTableToSave.setPspName(pspName);
+        myTableRepositoryDynamoDB.save(myTableToSave);
 
         return "Saved";
     }
