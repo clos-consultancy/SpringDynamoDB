@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dynamodb="http://docs.socialsignin.org/schema/data/dynamodb"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://docs.socialsignin.org/schema/data/dynamodb
+        http://docs.socialsignin.org/schema/data/dynamodb/spring-dynamodb.xsd">
+
+    <bean id="tableNameOverride" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.TableNameOverride.withTableNamePrefix"/>
+        <property name="arguments" value="${amazon.dynamodb.tableNamePrefix}" />
+    </bean>
+
+    <bean id="dynamoDBMapperConfigBuilder" class="com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.Builder">
+        <property name="tableNameOverride" ref="tableNameOverride" />
+    </bean>
+    <bean id="dynamoDBMapperConfig" factory-bean="dynamoDBMapperConfigBuilder" factory-method="build" />
+
+    <bean id="dynamoDBMapper" class="com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper">
+        <constructor-arg index="0" ref="amazonDynamoDB" />
+        <constructor-arg index="1" ref="dynamoDBMapperConfig" />
+    </bean>
+
+    <bean id="amazonDynamoDB" class="com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient">
+        <constructor-arg ref="amazonAWSCredentials" />
+        <property name="endpoint" value="${amazon.dynamodb.endpoint}" />
+    </bean>
+
+    <bean id="amazonAWSCredentials" class="com.amazonaws.auth.BasicAWSCredentials">
+        <constructor-arg value="${amazon.aws.accesskey}" />
+        <constructor-arg value="${amazon.aws.secretkey}" />
+    </bean>
+
+    <dynamodb:repositories base-package="hello" dynamodb-mapper-config-ref="dynamoDBMapperConfig" amazon-dynamodb-ref="amazonDynamoDB" />
+
+</beans>
